@@ -1,0 +1,25 @@
+{
+  "name": "Vision Science Labs Alarm",
+  "description": "Set daily alarm to visit the VSL website.",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "permissions": ["alarms", "notifications", "storage"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "VSL Alarm",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "vsl_16.png",
+      "32": "vsl_32.png"
+    }
+  },
+  "icons": {
+    "16": "vsl_16.png",
+    "32": "vsl_32.png",
+    "48": "vsl_48.png",
+    "128": "vsl_128.png"
+  }
+}
