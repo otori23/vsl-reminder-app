@@ -4,36 +4,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <head>
+    <link rel="stylesheet" href="css/styles.css" />
     <title>Vision Science Labs</title>
-    <style>
-      body {
-        text-align: center;
-      }
-
-      #hydrateImage {
-        width: 100px;
-        margin: 5px;
-      }
-
-      button {
-        margin: 5px;
-        outline: none;
-      }
-
-      button:hover {
-        outline: #80deea dotted thick;
-      }
-    </style>
   </head>
   <body>
-    <img src="./vsl_logo.png" id="vslImage" />
+    <img src="images/vsl_logo.png" id="vslImage" />
     <!-- An Alarm delay of less than the minimum 1 minute will fire
       in approximately 1 minute incriments if released -->
     <button id="sampleSecond" value="1">Sample Second</button>
     <button id="15min" value="15">15 Minutes</button>
     <button id="30min" value="30">30 Minutes</button>
     <button id="cancelAlarm">Cancel Alarm</button>
-    <!-- link to non-persistent background script -->
-    <script src="popup.js"></script>
+
+    <script src="js/popup.js"></script>
   </body>
 </html>

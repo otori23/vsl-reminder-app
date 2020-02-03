@@ -9,7 +9,7 @@ chrome.alarms.onAlarm.addListener(function() {
   chrome.browserAction.setBadgeText({ text: '' });
   chrome.notifications.create({
     type: 'basic',
-    iconUrl: 'vsl_logo.png',
+    iconUrl: 'images/vsl_logo.png',
     title: 'Time for Vision Training',
     message: 'Visit the VSL website to continue your training!',
     buttons: [{ title: 'Remind me Tomorrow.' }],

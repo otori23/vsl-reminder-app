@@ -1,0 +1,18 @@
+body {
+  text-align: center;
+  background: #edf3f3;
+}
+
+#vslImage {
+  width: 100px;
+  margin: 5px;
+}
+
+button {
+  margin: 5px;
+  outline: none;
+}
+
+button:hover {
+  outline: #80deea dotted thick;
+}
