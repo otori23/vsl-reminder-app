@@ -1,6 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
 body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  margin: 0;
+  min-height: 180px;
+  padding: 0;
+  width: 384px;
   text-align: center;
   background: #edf3f3;
+}
+
+body {
+  padding: 5px;
 }
 
 #vslImage {
@@ -15,4 +32,10 @@ button {
 
 button:hover {
   outline: #80deea dotted thick;
+}
+
+span[data-remove-name] {
+  display: inline-block;
+  margin: 0 5px;
+  cursor: pointer;
 }

@@ -4,18 +4,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <head>
-    <link rel="stylesheet" href="css/styles.css" />
     <title>Vision Science Labs</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <img src="images/vsl_logo.png" id="vslImage" />
-    <!-- An Alarm delay of less than the minimum 1 minute will fire
-      in approximately 1 minute incriments if released -->
-    <button id="sampleSecond" value="1">Sample Second</button>
-    <button id="15min" value="15">15 Minutes</button>
-    <button id="30min" value="30">30 Minutes</button>
-    <button id="cancelAlarm">Cancel Alarm</button>
-
+    <header class="header">
+      <h1 class="logo">
+        <img class="logo-icon" src="images/vsl_logo_full.png" />
+        Daily Reminder
+      </h1>
+    </header>
+    <main class="main">
+      <section class="add-alarms">
+        <form id="reminder-form">
+          <label for="reminder-name">Name:</label>
+          <input type="text" id="reminder-name" name="reminder-name" required />
+          <label for="reminder-time">Time:</label>
+          <input type="time" id="reminder-time" name="reminder-time" required />
+          <button type="submit" id="reminder-add">Add</button>
+        </form>
+      </section>
+      <section class="list-alarms">
+        <ul id="reminder-list">
+          <li>No Reminders</li>
+        </ul>
+        <button id="reminder-clear-all">Clear all</button>
+      </section>
+    </main>
+    <footer class="footer">
+      <span>&copy;</span>
+      <a href="https:www.visionsciencelabs.com" target="blank">
+        Vision Science Labs
+      </a>
+    </footer>
     <script src="js/popup.js"></script>
   </body>
 </html>
