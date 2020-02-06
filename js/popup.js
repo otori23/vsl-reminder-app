@@ -128,7 +128,6 @@ function clearAlarm(event) {
   });
 }
 
-// TODO: show time: ordered and formated hh:mm AM/PM
 function render() {
   chrome.storage.sync.get('reminders', function(data) {
     if (!data || !data.reminders) return;
