@@ -16,7 +16,7 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   min-height: 180px;
-  width: 384px;
+  width: 400px;
   background: var(--popup-bg-color);
   display: flex;
   flex-direction: column;
@@ -70,6 +70,35 @@ header a:hover {
 
 main {
   flex: 1;
+}
+
+.reminders .list {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.reminders .list li.empty {
+  color: var(--primary-color-darker);
+  font-weight: bold;
+}
+
+.reminders .list .item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reminders .day:first-of-type {
+  padding-left: 10px;
+}
+
+.reminders .day:last-of-type {
+  padding-right: 10px;
 }
 
 main .add-modal {

@@ -129,8 +129,14 @@ function clearAlarm(event) {
 }
 
 function render() {
+  const reminderList = document.getElementById('reminder-list');
+  const emptyListContent = `<li class="empty-list-item">No Reminders</li>`;
+
   chrome.storage.sync.get('reminders', function(data) {
-    if (!data || !data.reminders) return;
+    if (!data || !data.reminders) {
+      reminderList.innerHTML = emptyListContent;
+      return;
+    }
 
     // render badge
     if (data.reminders.length > 0) {
@@ -148,13 +154,13 @@ function render() {
       })
       .join('');
 
-    const reminderList = document.getElementById('reminder-list');
-    reminderList.innerHTML = listHTMLString;
+    reminderList.innerHTML =
+      data.reminders.length > 0 ? listHTMLString : emptyListContent;
   });
 }
 
 window.addEventListener('DOMContentLoaded', function(event) {
-  //An Alarm delay of less than the minimum 1 minute will fire
+  // An Alarm delay of less than the minimum 1 minute will fire
   // in approximately 1 minute incriments if released
   /*
   document
@@ -184,6 +190,9 @@ window.addEventListener('DOMContentLoaded', function(event) {
   appCloseBtn.addEventListener('click', e => {
     window.close();
   });
+
+  // TODO: uncomment below
+  // render();
 });
 
 chrome.runtime.onMessage.addListener(function(request) {

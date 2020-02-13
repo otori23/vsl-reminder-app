@@ -36,6 +36,7 @@
       </nav>
     </header>
     <main class="main">
+      <!--
       <section class="add-alarms">
         <form id="reminder-form">
           <label for="reminder-name">Name:</label>
@@ -50,6 +51,35 @@
           <li>No Reminders</li>
         </ul>
         <button id="reminder-clear-all">Clear all</button>
+      </section>
+      -->
+      <section class="reminders">
+        <div class="container">
+          <div id="reminders-header" class="header">
+            <h3>Reminders</h3>
+          </div>
+          <ul id="reminders-list" class="list">
+            <li class="item">
+              <span class="time">04:00 PM</span>
+              <span class="day">Mon</span>
+              <span class="day">Tue</span>
+              <span class="day">Wed</span>
+              <span class="day">Thu</span>
+              <span class="day">Fri</span>
+              <span class="day">Sat</span>
+              <span class="day">Sun</span>
+              <button class="edit-btn"><i class="fas fa-pen"></i> Edit</button>
+              <button class="remove-btn">
+                <i class="fas fa-minus"></i> Remove
+              </button>
+            </li>
+          </ul>
+          <div id="reminders-footer" class="footer">
+            <button id="reminders-remove-all">
+              <i class="fas fa-trash"></i>Remove all
+            </button>
+          </div>
+        </div>
       </section>
       <section id="add-modal" class="add-modal">
         <div class="modal-header container">
