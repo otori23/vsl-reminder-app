@@ -156,6 +156,7 @@ function render() {
 window.addEventListener('DOMContentLoaded', function(event) {
   //An Alarm delay of less than the minimum 1 minute will fire
   // in approximately 1 minute incriments if released
+  /*
   document
     .getElementById('reminder-clear-all')
     .addEventListener('click', clearAllAlarms);
@@ -164,6 +165,25 @@ window.addEventListener('DOMContentLoaded', function(event) {
     .getElementById('reminder-list')
     .addEventListener('click', clearAlarm);
   render();
+  */
+
+  // New Stuff
+  const addReminderBtn = document.getElementById('add-reminder-btn');
+  const addModal = document.getElementById('add-modal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const appCloseBtn = document.getElementById('app-close-btn');
+
+  addReminderBtn.addEventListener('click', e => {
+    addModal.classList.add('active');
+  });
+
+  closeModalBtn.addEventListener('click', e => {
+    addModal.classList.remove('active');
+  });
+
+  appCloseBtn.addEventListener('click', e => {
+    window.close();
+  });
 });
 
 chrome.runtime.onMessage.addListener(function(request) {
