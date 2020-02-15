@@ -88,14 +88,17 @@ function setAlarm(event) {
 }
 
 function clearAllAlarms() {
+  const msg = 'Do you want to remove all reminders?';
+  if (!confirm(msg)) return;
+
   chrome.storage.sync.set({ reminders: [] });
   chrome.alarms.clearAll();
 }
 
-// event handler on list (handle span events via delegation)
 function clearAlarm(event) {
-  // handle only span click events
-  if (!event.target.hasAttribute('data-remove-name')) return;
+  alert('Deleting');
+
+  /*
   const name = event.target.dataset.removeName;
 
   chrome.storage.sync.get('reminders', function(data) {
@@ -126,18 +129,30 @@ function clearAlarm(event) {
     // Remove notification
     chrome.alarms.clear(r.name);
   });
+  */
+}
+
+function editAlarm(event) {
+  // TODO: populate form
+  // TODO: Heading of form should say "Edit Reminder"
+
+  // Open Modal
+  const addModal = document.getElementById('add-modal');
+  addModal.classList.add('active');
 }
 
 function render() {
-  const reminderList = document.getElementById('reminder-list');
+  const remindersList = document.getElementById('reminders-list');
   const emptyListContent = `<li class="empty-list-item">No Reminders</li>`;
 
   chrome.storage.sync.get('reminders', function(data) {
     if (!data || !data.reminders) {
-      reminderList.innerHTML = emptyListContent;
+      remindersList.classList.add('empty');
+      remindersList.innerHTML = emptyListContent;
       return;
     }
 
+    // TODO: revist the badge rendering logic; add blinker instead
     // render badge
     if (data.reminders.length > 0) {
       chrome.browserAction.setBadgeText({ text: 'ON' });
@@ -147,16 +162,50 @@ function render() {
 
     // render list
     const listHTMLString = data.reminders
-      .map(function(reminder) {
-        return `<li>${
-          reminder.name
-        } - ${formatTimeString(reminder.time)} <span data-remove-name="${reminder.name}">x</span></li>`;
+      .map(function(reminder, index) {
+        console.log(index, reminder);
+        return getItemString({ ...reminder, index });
       })
       .join('');
 
-    reminderList.innerHTML =
-      data.reminders.length > 0 ? listHTMLString : emptyListContent;
+    // List is empty or has at least one item
+    if (data.reminders.length > 0) {
+      remindersList.innerHTML = listHTMLString;
+      remindersList.classList.remove('empty');
+    } else {
+      remindersList.innerHTML = emptyListContent;
+      remindersList.classList.add('empty');
+    }
   });
+}
+
+function getItemString(itemData) {
+  const days = new Set(itemData.days);
+
+  return `
+  <li class="item">
+    <div class="time">
+      <span>${itemData.time}</span>
+    </div>
+    <div class="days">
+      <span ${!days.has('Mon') ? 'class="disabled"' : ''}>Mon</span>
+      <span ${!days.has('Tue') ? 'class="disabled"' : ''}>Tue</span>
+      <span ${!days.has('Wed') ? 'class="disabled"' : ''}>Wed</span>
+      <span ${!days.has('Thu') ? 'class="disabled"' : ''}>Thu</span>
+      <span ${!days.has('Fri') ? 'class="disabled"' : ''}>Fri</span>
+      <span ${!days.has('Sat') ? 'class="disabled"' : ''}>Sat</span>
+      <span ${!days.has('Sun') ? 'class="disabled"' : ''}>Sun</span>
+    </div>
+    <div class="controls">
+      <button class="edit-btn" data-item-index="${itemData.index}">
+        <i class="fas fa-pen"></i> Edit
+      </button>
+      <button class="remove-btn" data-item-index="${itemData.index}">
+        <i class="fas fa-minus"></i> Remove
+      </button>
+    </div>
+  </li>
+  `;
 }
 
 window.addEventListener('DOMContentLoaded', function(event) {
@@ -178,6 +227,8 @@ window.addEventListener('DOMContentLoaded', function(event) {
   const addModal = document.getElementById('add-modal');
   const closeModalBtn = document.getElementById('close-modal-btn');
   const appCloseBtn = document.getElementById('app-close-btn');
+  const remindersList = document.getElementById('reminders-list');
+  const removeRemindersBtn = document.getElementById('remove-reminders-btn');
 
   addReminderBtn.addEventListener('click', e => {
     addModal.classList.add('active');
@@ -191,8 +242,37 @@ window.addEventListener('DOMContentLoaded', function(event) {
     window.close();
   });
 
-  // TODO: uncomment below
-  // render();
+  // event handler on list (handle span events via delegation)
+  remindersList.addEventListener('click', e => {
+    // handle only span click events for edit/delete buttons
+    if (!e.target.hasAttribute('data-item-index')) return;
+
+    if (e.target.classList.contains('edit-btn')) {
+      editAlarm(e);
+    } else {
+      clearAlarm(e);
+    }
+  });
+
+  removeRemindersBtn.addEventListener('click', e => {
+    clearAllAlarms();
+  });
+
+  // TODO: remove the hard coded data
+  chrome.storage.sync.set({
+    reminders: [
+      {
+        time: '11:00 AM',
+        days: ['Mon', 'Wed', 'Sat', 'Fri']
+      },
+      {
+        time: '04:00 PM',
+        days: ['Mon', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      }
+    ]
+  });
+
+  render();
 });
 
 chrome.runtime.onMessage.addListener(function(request) {

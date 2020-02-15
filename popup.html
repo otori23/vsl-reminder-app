@@ -59,26 +59,8 @@
             <h3>Reminders</h3>
           </div>
           <ul id="reminders-list" class="list">
-            <li class="item">
-              <span class="time">04:00 PM</span>
-              <span class="day">Mon</span>
-              <span class="day">Tue</span>
-              <span class="day">Wed</span>
-              <span class="day">Thu</span>
-              <span class="day">Fri</span>
-              <span class="day">Sat</span>
-              <span class="day">Sun</span>
-              <button class="edit-btn"><i class="fas fa-pen"></i> Edit</button>
-              <button class="remove-btn">
-                <i class="fas fa-minus"></i> Remove
-              </button>
-            </li>
+            <!-- Populate list items in js -->
           </ul>
-          <div id="reminders-footer" class="footer">
-            <button id="reminders-remove-all">
-              <i class="fas fa-trash"></i>Remove all
-            </button>
-          </div>
         </div>
       </section>
       <section id="add-modal" class="add-modal">
@@ -91,6 +73,9 @@
       </section>
     </main>
     <footer>
+      <button id="remove-reminders-btn">
+        <i class="fas fa-trash"></i>Remove All
+      </button>
       <button id="add-reminder-btn">
         <i class="fas fa-plus-circle"></i><span>Add Reminder</span>
       </button>

@@ -10,6 +10,7 @@
   --secondary-color: rgba(104, 48, 131, 0.7);
   --secondary-color-darker: rgb(104, 48, 131);
   --popup-bg-color: #edf3f3;
+  --disable-color: rgba(14, 62, 100, 0.1);
 }
 
 body {
@@ -72,13 +73,23 @@ main {
   flex: 1;
 }
 
+.reminders .header {
+  color: var(--primary-color-darker);
+  margin-bottom: 5px;
+}
+
 .reminders .list {
   list-style-type: none;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   font-size: 12px;
   font-weight: bold;
+  color: var(--primary-color-darker);
+}
+
+.reminders .list.empty {
+  align-items: center;
 }
 
 .reminders .list li.empty {
@@ -91,14 +102,54 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-.reminders .day:first-of-type {
-  padding-left: 10px;
+.reminders .item .time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.reminders .day:last-of-type {
-  padding-right: 10px;
+.reminders .item .days {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+}
+
+.reminders .item .days .disabled {
+  color: var(--disable-color);
+}
+
+.reminders .item .controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminders .item .edit-btn,
+.reminders .item .remove-btn {
+  font: inherit;
+  color: var(--primary-color);
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+}
+
+.reminders .item .remove-btn {
+  margin-left: 8px;
+}
+
+.reminders .item .edit-btn:hover,
+.reminders .item .remove-btn:hover {
+  color: var(--primary-color-darker);
+}
+
+.reminders .item .edit-btn:focus,
+.reminders .item .remove-btn:focus {
+  outline: none;
 }
 
 main .add-modal {
@@ -158,6 +209,10 @@ footer button {
   font-size: 12.5px;
   font-weight: bold;
   color: var(--primary-color);
+}
+
+footer button:last-of-type {
+  margin-left: 10px;
 }
 
 footer button:focus {
