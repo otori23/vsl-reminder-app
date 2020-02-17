@@ -6,14 +6,15 @@ const MIN_to_HRS = 60;
 const HRS_to_DAY = 24;
 const DAY_IN_MILLISECONDS = HRS_to_DAY * MIN_to_HRS * SEC_to_MIN * MSEC_to_SEC;
 const PERIOD_IN_MINUTES = HRS_to_DAY * MIN_to_HRS;
+const DAYS_IN_WEEK = 7;
+const newReminder = {
+  time: '',
+  days: new Set()
+};
+let editIndex = -1;
 
-function getDelayInMinutes(timeIn) {
-  const now = new Date();
-  const nowDateStr = now.toLocaleString().split(',')[0];
-  const alarmDate = new Date(nowDateStr + ' ' + timeIn);
-  let delayMsec = alarmDate.getTime() - now.getTime();
-  delayMsec = delayMsec >= 0 ? delayMsec : delayMsec + DAY_IN_MILLISECONDS;
-  return Math.ceil(delayMsec / MSEC_to_SEC / SEC_to_MIN);
+function msec2mins(ms) {
+  return Math.ceil(ms / MSEC_to_SEC / SEC_to_MIN);
 }
 
 function formatTimeString(timeIn) {
@@ -27,64 +28,29 @@ function formatTimeString(timeIn) {
   });
 }
 
-function setAlarm(event) {
-  event.preventDefault();
-  if (!document.getElementById('reminder-form').checkValidity()) return;
-  chrome.storage.sync.get('reminders', function(data) {
-    // Get user inputs
-    const name = document.getElementById('reminder-name').value;
-    const time = document.getElementById('reminder-time').value;
+function setAlarm(reminder) {
+  const now = new Date();
+  const days = new Set(reminder.days);
+  const createdAlarmNames = new Set();
 
-    // Retrive persisted remainder data as a Map
-    const reminders = data.reminders;
-    const names = new Map(reminders.map(r => [r.name, r]));
-    const times = new Map(reminders.map(r => [r.time, r]));
-    let overwrite = false;
-
-    // Test if new reminder name is already in use
-    if (names.has(name)) {
-      const msg = `The name: "${name}" is already used. Do you want to overwrite its value?`;
-      if (!confirm(msg)) {
-        return;
-      } else {
-        overwrite = true;
+  for (let i = 0; i <= DAYS_IN_WEEK; i++) {
+    const alarmDate = new Date(now.getTime() + i * DAY_IN_MILLISECONDS);
+    const alarmDateStr = alarmDate.toLocaleString().split(',')[0];
+    const timeStr = formatTimeString(reminder.time);
+    const alarmDateTime = new Date(alarmDateStr + ' ' + timeStr);
+    const nextAlarmDay = alarmDateTime.toString().split(' ')[0];
+    if (days.has(nextAlarmDay)) {
+      const name = `${reminder.time}-${nextAlarmDay}`;
+      const delayInMsec = alarmDateTime.getTime() - now.getTime();
+      if (delayInMsec < 0) continue; // alarm for same day, but time has passed that day
+      const delayInMinutes = msec2mins(delayInMsec);
+      const periodInMinutes = PERIOD_IN_MINUTES;
+      if (!createdAlarmNames.has(name)) {
+        chrome.alarms.create(name, { delayInMinutes, periodInMinutes });
+        createdAlarmNames.add(name);
       }
     }
-
-    // Test if new reminder time is already in use
-    if (times.has(time)) {
-      const timeString = formatTimeString(time);
-      const msg = `There is already a notification set for ${timeString}. Set another time.`;
-      alert(msg);
-      return;
-    }
-
-    // Persist reminder data
-    let newReminder = { name, time };
-    if (overwrite) {
-      const i = reminders.findIndex(r => r.name === name);
-      reminders.splice(i, 1);
-    }
-    reminders.push(newReminder);
-    reminders.sort((a, b) => {
-      if (a.time < b.time) return -1;
-      else if (a.time === b.time) return 0;
-      else return 1;
-    });
-    chrome.storage.sync.set({ reminders }, function() {
-      if (chrome.runtime.lastError) {
-        console.log('Error adding reminder.');
-      } else {
-        const msg = overwrite ? `Updated reminder:` : `Added reminder:`;
-        console.log(msg, newReminder);
-      }
-    });
-
-    // Create daily reminder
-    const delayInMinutes = getDelayInMinutes(time);
-    const periodInMinutes = PERIOD_IN_MINUTES;
-    chrome.alarms.create(name, { delayInMinutes, periodInMinutes });
-  });
+  }
 }
 
 function clearAllAlarms() {
@@ -95,46 +61,52 @@ function clearAllAlarms() {
   chrome.alarms.clearAll();
 }
 
-function clearAlarm(event) {
-  alert('Deleting');
+function clearAlarm(reminder) {
+  reminder.days.forEach(d => {
+    const name = `${reminder.time}-${d}`;
+    chrome.alarms.clear(name);
+  });
+}
 
-  /*
-  const name = event.target.dataset.removeName;
+function openEditReminderModal(event) {
+  // Set Edit Mode
+  editIndex = event.target.dataset.itemIndex;
+
+  // Set Modal Title
+  const titleElem = document.querySelector('.modal-header h3');
+  titleElem.innerHTML = 'Edit Reminder';
 
   chrome.storage.sync.get('reminders', function(data) {
-    if (!data || !data.reminders) return;
-
     const reminders = data.reminders;
-    const i = reminders.findIndex(r => r.name === name);
-    const r = reminders[i];
+    const r = reminders[editIndex];
+    const form = document.getElementById('form');
 
-    // Confirm deletion
-    const rStr = `${r.name} - ${formatTimeString(r.time)}`;
-    const msg = `Do you want to delete reminder: ${rStr}.`;
-    if (!confirm(msg)) return;
+    // Set time
+    form.time.value = r.time;
 
-    // Delete from data model
-    reminders.splice(i, 1);
-
-    // Persist reminders data
-    chrome.storage.sync.set({ reminders }, function() {
-      if (chrome.runtime.lastError) {
-        console.log('Error deleting reminder.');
-      } else {
-        const msg = `Deleted reminder: ${rStr}.`;
-        console.log(msg);
+    // Set days
+    const checkboxes = document.querySelectorAll('form .checkbox');
+    const days = new Set(r.days);
+    checkboxes.forEach(chb => {
+      if (days.has(chb.name)) {
+        form[chb.name].checked = true;
       }
     });
 
-    // Remove notification
-    chrome.alarms.clear(r.name);
+    // Set newReminder
+    newReminder.days = new Set(r.days);
+    newReminder.time = r.time;
+
+    // Open Modal
+    const addModal = document.getElementById('add-modal');
+    addModal.classList.add('active');
   });
-  */
 }
 
-function editAlarm(event) {
-  // TODO: populate form
-  // TODO: Heading of form should say "Edit Reminder"
+function openAddReminderModal(event) {
+  // Set Modal Title
+  const titleElem = document.querySelector('.modal-header h3');
+  titleElem.innerHTML = 'Add Reminder';
 
   // Open Modal
   const addModal = document.getElementById('add-modal');
@@ -144,10 +116,11 @@ function editAlarm(event) {
 function render() {
   const remindersList = document.getElementById('reminders-list');
   const emptyListContent = `<li class="empty-list-item">No Reminders</li>`;
-
+  const removeRemindersBtn = document.getElementById('remove-reminders-btn');
   chrome.storage.sync.get('reminders', function(data) {
     if (!data || !data.reminders) {
       remindersList.classList.add('empty');
+      removeRemindersBtn.classList.add('empty');
       remindersList.innerHTML = emptyListContent;
       return;
     }
@@ -163,7 +136,6 @@ function render() {
     // render list
     const listHTMLString = data.reminders
       .map(function(reminder, index) {
-        console.log(index, reminder);
         return getItemString({ ...reminder, index });
       })
       .join('');
@@ -172,9 +144,11 @@ function render() {
     if (data.reminders.length > 0) {
       remindersList.innerHTML = listHTMLString;
       remindersList.classList.remove('empty');
+      removeRemindersBtn.classList.remove('empty');
     } else {
       remindersList.innerHTML = emptyListContent;
       remindersList.classList.add('empty');
+      removeRemindersBtn.classList.add('empty');
     }
   });
 }
@@ -185,7 +159,7 @@ function getItemString(itemData) {
   return `
   <li class="item">
     <div class="time">
-      <span>${itemData.time}</span>
+      <span>${formatTimeString(itemData.time)}</span>
     </div>
     <div class="days">
       <span ${!days.has('Mon') ? 'class="disabled"' : ''}>Mon</span>
@@ -208,34 +182,180 @@ function getItemString(itemData) {
   `;
 }
 
-window.addEventListener('DOMContentLoaded', function(event) {
-  // An Alarm delay of less than the minimum 1 minute will fire
-  // in approximately 1 minute incriments if released
-  /*
-  document
-    .getElementById('reminder-clear-all')
-    .addEventListener('click', clearAllAlarms);
-  document.getElementById('reminder-form').addEventListener('submit', setAlarm);
-  document
-    .getElementById('reminder-list')
-    .addEventListener('click', clearAlarm);
-  render();
-  */
+function resetForm() {
+  document.getElementById('form').reset();
+  newReminder.time = '';
+  newReminder.days = new Set();
+  editIndex = -1;
+}
 
-  // New Stuff
-  const addReminderBtn = document.getElementById('add-reminder-btn');
+function addReminder() {
+  chrome.storage.sync.get('reminders', function(data) {
+    // Retrive persisted remainder data as a Map
+    const reminders = data.reminders;
+    const times = new Map(reminders.map(r => [r.time, r]));
+    let overwrite = false;
+
+    // Test if new reminder time is already in use
+    if (times.has(newReminder.time)) {
+      const t = formatTimeString(newReminder.time);
+      const msg = `There is already a notification set for ${t}. Overwrite?`;
+      if (!confirm(msg)) {
+        return;
+      } else {
+        overwrite = true;
+      }
+    }
+
+    // Handle overwrite
+    if (overwrite) {
+      const i = reminders.findIndex(r => r.time === newReminder.time);
+      reminders.splice(i, 1);
+    }
+
+    // Persist reminder data
+    reminders.push({ ...newReminder, days: Array.from(newReminder.days) });
+    reminders.sort((a, b) => {
+      if (a.time < b.time) return -1;
+      else if (a.time === b.time) return 0;
+      else return 1;
+    });
+    chrome.storage.sync.set({ reminders }, function() {
+      if (chrome.runtime.lastError) {
+        console.log('Error adding reminder.');
+      } else {
+        const msg = overwrite ? `Updated reminder:` : `Added reminder:`;
+        console.log(msg, newReminder);
+      }
+    });
+
+    // Create the System Alarm
+    setAlarm(newReminder);
+
+    // Clean up
+    closeModal();
+  });
+}
+
+function editReminder() {
+  chrome.storage.sync.get('reminders', function(data) {
+    // Retrive persisted remainder data as a Map
+    const reminders = data.reminders;
+    const newRem = {
+      ...newReminder,
+      days: Array.from(newReminder.days)
+    };
+    const oldRem = reminders.splice(editIndex, 1, newRem)[0];
+
+    // Remove old alarms
+    clearAlarm(oldRem);
+
+    // Persist reminder data
+    chrome.storage.sync.set({ reminders }, function() {
+      if (chrome.runtime.lastError) {
+        console.log('Error editing reminder.');
+      } else {
+        console.log('Edited reminder.', newReminder);
+      }
+    });
+
+    // Set new Alarms
+    setAlarm(newRem);
+
+    // Clean up
+    closeModal();
+  });
+}
+
+function removeReminder(e) {
+  const i = e.target.dataset.itemIndex;
+
+  chrome.storage.sync.get('reminders', function(data) {
+    if (!data || !data.reminders) return;
+
+    const reminders = data.reminders;
+    const r = reminders[i];
+
+    // Confirm deletion
+    const rStr = formatTimeString(r.time) + ' [' + r.days.join(',') + ']';
+    const msg = 'Do you want to remove reminder:';
+    if (!confirm(msg + '\n' + rStr + '.')) return;
+
+    // Delete from data model
+    reminders.splice(i, 1);
+
+    // Persist reminders data
+    chrome.storage.sync.set({ reminders }, function() {
+      if (chrome.runtime.lastError) {
+        console.log('Error deleting reminder.');
+      } else {
+        console.log(`Deleted reminder: ${rStr}.`);
+      }
+    });
+
+    clearAlarm(r);
+  });
+}
+
+function validateCheckboxInputs() {
+  let res = true;
+  const daysRow = document.querySelector('.row.days');
+
+  // Checkboxes
+  if (newReminder.days.size === 0) {
+    daysRow.classList.add('error');
+    res = false;
+  } else {
+    daysRow.classList.remove('error');
+  }
+
+  return res;
+}
+
+function validateTimeInput() {
+  let res = true;
+  const timeRow = document.querySelector('.row.time');
+
+  // Time
+  if (newReminder.time === '') {
+    timeRow.classList.add('error');
+    res = false;
+  } else {
+    timeRow.classList.remove('error');
+  }
+
+  return res;
+}
+
+function checkFormInputs() {
+  const checkboxValid = validateCheckboxInputs();
+  const timeValid = validateTimeInput();
+  return checkboxValid && timeValid;
+}
+
+function closeModal() {
   const addModal = document.getElementById('add-modal');
+  addModal.classList.remove('active');
+  resetForm();
+}
+
+window.addEventListener('DOMContentLoaded', function(event) {
+  const addReminderBtn = document.getElementById('add-reminder-btn');
   const closeModalBtn = document.getElementById('close-modal-btn');
   const appCloseBtn = document.getElementById('app-close-btn');
   const remindersList = document.getElementById('reminders-list');
   const removeRemindersBtn = document.getElementById('remove-reminders-btn');
+  const form = document.getElementById('form');
+  const timeInput = document.getElementById('time');
+  const formOkBtn = document.getElementById('form-ok-btn');
+  const formCancelBtn = document.getElementById('form-cancel-btn');
 
   addReminderBtn.addEventListener('click', e => {
-    addModal.classList.add('active');
+    openAddReminderModal(e);
   });
 
   closeModalBtn.addEventListener('click', e => {
-    addModal.classList.remove('active');
+    closeModal();
   });
 
   appCloseBtn.addEventListener('click', e => {
@@ -248,9 +368,9 @@ window.addEventListener('DOMContentLoaded', function(event) {
     if (!e.target.hasAttribute('data-item-index')) return;
 
     if (e.target.classList.contains('edit-btn')) {
-      editAlarm(e);
+      openEditReminderModal(e);
     } else {
-      clearAlarm(e);
+      removeReminder(e);
     }
   });
 
@@ -258,18 +378,36 @@ window.addEventListener('DOMContentLoaded', function(event) {
     clearAllAlarms();
   });
 
-  // TODO: remove the hard coded data
-  chrome.storage.sync.set({
-    reminders: [
-      {
-        time: '11:00 AM',
-        days: ['Mon', 'Wed', 'Sat', 'Fri']
-      },
-      {
-        time: '04:00 PM',
-        days: ['Mon', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      }
-    ]
+  form.addEventListener('click', e => {
+    const isDay = e.target.classList.contains('checkbox');
+
+    if (!isDay) return;
+
+    if (e.target.checked) {
+      newReminder.days.add(e.target.dataset.day);
+    } else {
+      newReminder.days.delete(e.target.dataset.day);
+    }
+
+    validateCheckboxInputs();
+  });
+
+  timeInput.addEventListener('change', e => {
+    const t = e.target.value;
+    newReminder.time = !!t ? e.target.value : '';
+    validateTimeInput();
+  });
+
+  formOkBtn.addEventListener('click', e => {
+    e.preventDefault();
+    if (checkFormInputs()) {
+      editIndex < 0 ? addReminder() : editReminder();
+    }
+  });
+
+  formCancelBtn.addEventListener('click', e => {
+    e.preventDefault();
+    closeModal();
   });
 
   render();

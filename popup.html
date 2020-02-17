@@ -36,33 +36,6 @@
       </nav>
     </header>
     <main class="main">
-      <!--
-      <section class="add-alarms">
-        <form id="reminder-form">
-          <label for="reminder-name">Name:</label>
-          <input type="text" id="reminder-name" name="reminder-name" required />
-          <label for="reminder-time">Time:</label>
-          <input type="time" id="reminder-time" name="reminder-time" required />
-          <button type="submit" id="reminder-add">Add</button>
-        </form>
-      </section>
-      <section class="list-alarms">
-        <ul id="reminder-list">
-          <li>No Reminders</li>
-        </ul>
-        <button id="reminder-clear-all">Clear all</button>
-      </section>
-      -->
-      <section class="reminders">
-        <div class="container">
-          <div id="reminders-header" class="header">
-            <h3>Reminders</h3>
-          </div>
-          <ul id="reminders-list" class="list">
-            <!-- Populate list items in js -->
-          </ul>
-        </div>
-      </section>
       <section id="add-modal" class="add-modal">
         <div class="modal-header container">
           <h3>Add Reminder</h3>
@@ -70,10 +43,126 @@
             <i class="fas fa-window-close"></i>
           </button>
         </div>
+        <form id="form" class="container" novalidate>
+          <div class="row days">
+            <div class="label">Days</div>
+            <div class="control-group">
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-mon"
+                  class="checkbox"
+                  hidden
+                  data-day="Mon"
+                  name="Mon"
+                />
+                <label for="checkbox-mon" class="checkmark"></label>
+                <label for="checkbox-mon" class="checklabel">Mon</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-tue"
+                  class="checkbox"
+                  hidden
+                  data-day="Tue"
+                  name="Tue"
+                />
+                <label for="checkbox-tue" class="checkmark"></label>
+                <label for="checkbox-tue" class="checklabel">Tue</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-wed"
+                  class="checkbox"
+                  hidden
+                  data-day="Wed"
+                  name="Wed"
+                />
+                <label for="checkbox-wed" class="checkmark"></label>
+                <label for="checkbox-wed" class="checklabel">Wed</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-thu"
+                  class="checkbox"
+                  hidden
+                  data-day="Thu"
+                  name="Thu"
+                />
+                <label for="checkbox-thu" class="checkmark"></label>
+                <label for="checkbox-thu" class="checklabel">Thu</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-fri"
+                  class="checkbox"
+                  hidden
+                  data-day="Fri"
+                  name="Fri"
+                />
+                <label for="checkbox-fri" class="checkmark"></label>
+                <label for="checkbox-fri" class="checklabel">Fri</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-sat"
+                  class="checkbox"
+                  hidden
+                  data-day="Sat"
+                  name="Sat"
+                />
+                <label for="checkbox-sat" class="checkmark"></label>
+                <label for="checkbox-sat" class="checklabel">Sat</label>
+              </div>
+              <div class="checkbox-control">
+                <input
+                  type="checkbox"
+                  id="checkbox-sun"
+                  class="checkbox"
+                  hidden
+                  data-day="Sun"
+                  name="Sun"
+                />
+                <label for="checkbox-sun" class="checkmark"></label>
+                <label for="checkbox-sun" class="checklabel">Sun</label>
+              </div>
+              <small>Error: Select at least one day.</small>
+            </div>
+          </div>
+          <div class="row time">
+            <div class="label">Time</div>
+            <div class="control-group">
+              <input type="time" id="time" class="time" name="time" />
+              <small>Error: Select a valid time.</small>
+            </div>
+          </div>
+          <div class="row controls">
+            <div class="label"></div>
+            <div>
+              <button id="form-ok-btn">Ok</button>
+              <button id="form-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </section>
+      <section id="reminders" class="reminders">
+        <div class="container">
+          <div id="reminders-header" class="header">
+            <h3>Daily Reminders</h3>
+          </div>
+          <ul id="reminders-list" class="list">
+            <!-- Populate list items in js -->
+          </ul>
+        </div>
       </section>
     </main>
     <footer>
-      <button id="remove-reminders-btn">
+      <button id="remove-reminders-btn" class="remove-reminders-btn">
         <i class="fas fa-trash"></i>Remove All
       </button>
       <button id="add-reminder-btn">

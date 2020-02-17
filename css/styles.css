@@ -9,15 +9,21 @@
   --primary-color-darker: rgb(14, 62, 100);
   --secondary-color: rgba(104, 48, 131, 0.7);
   --secondary-color-darker: rgb(104, 48, 131);
-  --popup-bg-color: #edf3f3;
+  --popup-bg-color: rgb(237, 243, 243);
+  --popup-bg-color-darker: rgb(232, 238, 238);
   --disable-color: rgba(14, 62, 100, 0.1);
+  --min-height: 215px;
+  --max-height: 400px;
+  --form-height: 160px;
+  --checked-color: #08bb68;
+  --error-color: #e74c3c;
 }
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
-  min-height: 180px;
-  width: 400px;
+  min-height: var(--min-height);
+  width: 425px;
   background: var(--popup-bg-color);
   display: flex;
   flex-direction: column;
@@ -86,6 +92,9 @@ main {
   font-size: 12px;
   font-weight: bold;
   color: var(--primary-color-darker);
+  max-height: var(--max-height);
+  overflow: hidden auto;
+  transition: max-height 0.4s ease;
 }
 
 .reminders .list.empty {
@@ -102,7 +111,12 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  /*margin-bottom: 10px;*/
+  padding: 5px 2px;
+}
+
+.reminders .list .item:nth-child(2n) {
+  background-color: var(--popup-bg-color-darker);
 }
 
 .reminders .item .time {
@@ -169,7 +183,7 @@ main .add-modal.active {
 
 main .modal-header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   border-bottom: 0.5px solid var(--primary-color);
   color: var(--primary-color-darker);
@@ -179,19 +193,174 @@ main .modal-header button {
   border: 0;
   background-color: transparent;
   cursor: pointer;
-  color: var(--primary-color);
+  color: var(--primary-color-darker);
   font-weight: bold;
   font-size: 18px;
 }
 
 main .modal-header button:hover {
-  color: var(--primary-color-darker);
+  color: var(--primary-color);
 }
 
 main .modal-header button:focus {
   outline: none;
 }
 
+.add-modal form {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--form-height);
+  padding-top: 15px;
+}
+
+.add-modal form .row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.add-modal form .row small {
+  visibility: hidden;
+}
+
+.add-modal form .row.error small {
+  visibility: visible;
+}
+
+.add-modal form .row.time {
+  align-items: baseline;
+  margin: 10px 0 0 0;
+}
+
+.add-modal form .label {
+  color: var(--primary-color-darker);
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0 10px 0 0;
+}
+
+.add-modal form .row.error .label {
+  color: var(--error-color);
+}
+
+.add-modal form .control-group {
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  padding: 0 0 20px 0;
+  position: relative;
+}
+
+.control-group small {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  margin: 0 0 0 10px;
+  color: var(--error-color);
+  font-weight: bold;
+}
+
+.add-modal form .checkbox-control {
+  margin: 0 0 0 10px;
+}
+
+.add-modal form .checkbox-control:hover {
+  cursor: pointer;
+}
+
+.add-modal form .checklabel {
+  color: var(--primary-color-darker);
+  font-weight: bold;
+  font-size: 12px;
+  padding: 0 0 0 2px;
+}
+
+.add-modal form .checkbox:checked ~ .checklabel {
+  color: var(--checked-color);
+}
+
+.add-modal form input[type='time'] {
+  padding: 5px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid var(--primary-color-darker);
+  border-radius: 5px;
+  margin: 0 0 0 10px;
+  outline: none;
+}
+
+.add-modal button {
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--primary-color-darker);
+}
+
+.add-modal button:last-of-type {
+  margin: 10px 0 0 10px;
+}
+
+.add-modal button:focus {
+  outline: none;
+}
+
+.add-modal button:hover {
+  color: var(--primary-color);
+}
+
+/* shrink form length for lon reminders list */
+.add-modal.active ~ .reminders .list {
+  max-height: 50px;
+}
+
+/* Custom Checkbox */
+.checkbox-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkmark {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-color: var(--popup-bg-color);
+  border-radius: 3px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox:checked + .checkmark {
+  background-color: var(--checked-color);
+}
+
+.checkmark::after {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 5px;
+  height: 10px;
+  border-right: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  /* initially check is really big; nice viusal effect when it gets smaller */
+  transform: translate(-50%, -50%) rotateZ(40deg) scale(10);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s;
+}
+
+.checkbox:checked + .checkmark::after {
+  opacity: 1;
+  /* need to copy all the transforms; else, will override the omitted ones */
+  transform: translate(-50%, -50%) rotateZ(40deg) scale(1);
+}
+
+/* Footer */
 footer {
   padding: 10px 0 5px 0;
   margin: 5px;
@@ -221,6 +390,10 @@ footer button:focus {
 
 footer button:hover {
   color: var(--primary-color-darker);
+}
+
+footer .remove-reminders-btn.empty {
+  display: none;
 }
 
 .fas {

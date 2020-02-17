@@ -1,5 +1,7 @@
 'use strict';
 
+const newURL = 'https://esports.visionsciencelabs.com';
+
 chrome.runtime.onInstalled.addListener(function() {
   chrome.alarms.clearAll();
   chrome.browserAction.setBadgeText({ text: '' });
@@ -32,9 +34,12 @@ chrome.alarms.onAlarm.addListener(function() {
 
 chrome.notifications.onButtonClicked.addListener(function(notId, btnId) {
   if (btnId === 0) {
-    var newURL = 'https://www.visionsciencelabs.com/';
     chrome.tabs.create({ url: newURL });
   }
+});
+
+chrome.notifications.onClicked.addListener(function(notId) {
+  chrome.tabs.create({ url: newURL });
 });
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
