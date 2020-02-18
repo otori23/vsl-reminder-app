@@ -13,10 +13,6 @@ const newReminder = {
 };
 let editIndex = -1;
 
-function msec2mins(ms) {
-  return Math.ceil(ms / MSEC_to_SEC / SEC_to_MIN);
-}
-
 function formatTimeString(timeIn) {
   const now = new Date();
   const nowDateStr = now.toLocaleString().split(',')[0];
@@ -41,12 +37,14 @@ function setAlarm(reminder) {
     const nextAlarmDay = alarmDateTime.toString().split(' ')[0];
     if (days.has(nextAlarmDay)) {
       const name = `${reminder.time}-${nextAlarmDay}`;
-      const delayInMsec = alarmDateTime.getTime() - now.getTime();
-      if (delayInMsec < 0) continue; // alarm for same day, but time has passed that day
-      const delayInMinutes = msec2mins(delayInMsec);
+      const when = alarmDateTime.getTime();
       const periodInMinutes = PERIOD_IN_MINUTES;
+
+      const delta = when - now.getTime();
+      if (delta < 0) continue; // alarm for same day, but time has passed that day
+
       if (!createdAlarmNames.has(name)) {
-        chrome.alarms.create(name, { delayInMinutes, periodInMinutes });
+        chrome.alarms.create(name, { when, periodInMinutes });
         createdAlarmNames.add(name);
       }
     }
