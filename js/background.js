@@ -27,7 +27,7 @@ chrome.alarms.onAlarm.addListener(function() {
     iconUrl: 'images/vsl_logo.png',
     title: 'Time for Vision Training',
     message: 'Visit the VSL website to continue your training!',
-    buttons: [{ title: 'Ok' }, { title: 'Cancel' }],
+    buttons: [{ title: 'Ok' }, { title: 'Snooze' }],
     priority: 0,
     requireInteraction: true
   });
@@ -36,6 +36,8 @@ chrome.alarms.onAlarm.addListener(function() {
 chrome.notifications.onButtonClicked.addListener(function(notId, btnId) {
   if (btnId === 0) {
     chrome.tabs.create({ url: newURL });
+  } else if (btnId === 1) {
+    chrome.alarms.create({ delayInMinutes: 10 });
   }
 });
 

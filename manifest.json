@@ -1,7 +1,7 @@
 {
   "name": "Vision Science Labs Reminder",
   "description": "Set daily reminder to visit the VSL website.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "manifest_version": 2,
   "permissions": ["alarms", "notifications", "storage"],
   "background": {
