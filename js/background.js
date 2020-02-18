@@ -28,7 +28,8 @@ chrome.alarms.onAlarm.addListener(function() {
     title: 'Time for Vision Training',
     message: 'Visit the VSL website to continue your training!',
     buttons: [{ title: 'Ok' }, { title: 'Cancel' }],
-    priority: 0
+    priority: 0,
+    requireInteraction: true
   });
 });
 
