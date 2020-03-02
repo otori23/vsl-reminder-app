@@ -5,8 +5,9 @@ const SEC_to_MIN = 60;
 const MIN_to_HRS = 60;
 const HRS_to_DAY = 24;
 const DAY_IN_MILLISECONDS = HRS_to_DAY * MIN_to_HRS * SEC_to_MIN * MSEC_to_SEC;
-const PERIOD_IN_MINUTES = HRS_to_DAY * MIN_to_HRS;
 const DAYS_IN_WEEK = 7;
+const PERIOD_IN_MINUTES = DAYS_IN_WEEK * HRS_to_DAY * MIN_to_HRS;
+
 const newReminder = {
   time: '',
   days: new Set()
